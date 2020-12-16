@@ -1,3 +1,27 @@
 ---
-- include: playbooks/deploy_vc_and_hosts.yml
-- include: playbooks/configure_nested_vcenter.yml
+- name: Deploy VC and Hosts
+  hosts: localhost
+  gather_facts: False
+  strategy: free
+  pre_tasks:
+  - name: Ensure xorriso is installed
+    package:
+      name: xorriso
+      state: present  
+  # vars:
+  # # empty var to populate
+  #   datastores_to_add:
+    
+  #   disks_to_add: ""
+  roles:
+    - deploy-vc-and-hosts
+    - datacenter
+    - clusters
+    - vswitch0-port-groups
+    - local-datastores
+    - enable-cluster-ha
+    - resource-pools
+    - role: distributed-switches
+      when: 'distributed_switches is defined'
+    - role: distributed-port-groups
+      when: 'distributed_switches is defined'

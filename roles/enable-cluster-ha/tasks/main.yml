@@ -1,0 +1,16 @@
+---
+- name: Update Clusters to enable HA
+  vmware_cluster:
+    hostname: "{{ nested_vcenter.ip }}"
+    username: "{{ nested_vcenter.user }}"
+    password: "{{ nested_vcenter.password }}"
+    datacenter_name: "{{ nested_vcenter.datacenter }}"
+    cluster_name: "{{ item.key }}"
+    validate_certs: False
+    enable_ha: "{{ item.value.ha_enabled }}" 
+    ha_admission_control_enabled: "{{ item.value.ha_admission_control_enabled | default(omit)}}" 
+    ha_host_monitoring: "{{ item.value.ha_host_monitoring_enabled | default(omit)}}" 
+    enable_drs: "{{ item.value.drs }}"
+    enable_vsan: False
+  with_dict: "{{ nested_clusters }}"
+  when: '"ha_enabled" in item.value'

@@ -34,7 +34,7 @@ After cloneing the repo, you must update the relevant answerfile  yaml to point 
 When running for the first time you must run `./fix_dvs_for_7.sh` to enable creation of VDS v7 objects if you want to create a VDS version 7 under vSphere 7.<br/>
 
 ```
-ansible-playbook deploy.yml --extra-vars="@answerfile-minimal.yml"
+ansible-playbook deploy.yml --extra-vars="@var-examples/minimal/answerfile-minimal.yml"
 ```
 
 ## Docker Usage 
@@ -50,11 +50,11 @@ docker run  --rm \
     --volume ${PWD}:/work \
     laidbackware/vsphere-ansible \
     ansible-playbook /work/deploy.yml \
-        --extra-vars '@/work/answerfile-minimal.yml'
+        --extra-vars '@/work/var-examples/minimal/answerfile.yml'
 ```
 
 ## Destroying
-When running the playbook, run destroy.yml instead. E.g. `ansible-playbook destroy.yml --extra-vars="@answerfile-minimal.yml"`
+When running the playbook, run destroy.yml instead. E.g. `ansible-playbook destroy.yml --extra-vars="@var-examples/minimal/answerfile-minimal.yml"`
 
 # Docker Image Build
 ```
