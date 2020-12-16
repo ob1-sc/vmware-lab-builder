@@ -57,5 +57,5 @@ nested_hosts:
     gw: 192.168.0.1
     nested_cluster: vsphere-community  # the nested vcenter cluster, which is defined in the clusters section.
 
-tkgs:
-    datastore_tag_category: tkgs-storage-category        
+# tkgs:
+#     datastore_tag_category: tkgs-storage-category        

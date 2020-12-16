@@ -42,11 +42,11 @@ nested_clusters: # You can add clusters in this section by duplicating the exist
             -   name: "Nest"
             -   name: "Nest"
     full-fat: # This will be the name of the cluster in the nested  vCenter
-        drs: True
+        enable_drs: True
+        drs_default_vm_behavior: partiallyAutomated # Defaults to fully automated
         # HA can only be enabled if there is are datastores accessible by all hosts.
-        ha_enabled: True
-        ha_admission_control_enabled: False
-        ha_host_monitoring_enabled: disabled
+        enable_ha: True
+        ha_host_monitoring: enabled
         # Settings below are assigned to each host in the cluster
         vswitch0_vm_port_group_name: net1
         vswitch0_vm_port_group_vlan: 0

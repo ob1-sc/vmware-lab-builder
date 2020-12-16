@@ -14,13 +14,16 @@ Infrastructure:
 - NTP available
 Software versions:
 - Ansible 2.10 or higher
-- Linux tools `apt-get install xorriso sshpass python3-pip git`
-- Python modules `pip3 install pyvmomi ansible==2.10.*`
+- Linux tools `apt-get install libarchive-tools sshpass python3-pip git`
+- Python modules `pip3 install pyvmomi ansible==2.10.* netaddr`
 - Install [vSphere Automation SDK](https://github.com/vmware/vsphere-automation-sdk-python)
     `pip install --upgrade pip setuptools`
     `pip install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git`
 - [ESXi OVA images](https://www.virtuallyghetto.com/nested-virtualization/nested-esxi-virtual-appliance)
 - [vCenter ISO](https://my.vmware.com/en/group/vmware/downloads/info/slug/datacenter_cloud_infrastructure/vmware_vsphere/7_0)
+- When installing TKGS
+  - [VMware HA Proxy OVA](https://github.com/haproxytech/vmware-haproxy/releases/tag/v0.1.8)
+  - [VyOS OVA](https://downloads.vyos.io/release/legacy/1.1.8/vyos-1.1.8-amd64.ova)
 
 # Usage 
 You must export the credentials to you existing vCenter as environmental variables along with the path which contains both the ESXi OVA and vCenter ISO.
@@ -31,8 +34,12 @@ export PARENT_VCENTER_USERNAME="administrator@vsphere.local" \
 ```
 ## Local Usage
 After cloneing the repo, you must update the relevant answerfile  yaml to point to your ova and iso file, plus change any IP addresses or credentials.<br/>
-When running for the first time you must run `./fix_dvs_for_7.sh` to enable creation of VDS v7 objects if you want to create a VDS version 7 under vSphere 7.<br/>
-
+Currently the upstream vsphere community modules don't fully support all actions, so you must replace the the modules which ship with Ansible 2.10 with the ones provied. This only needs to be done after an install or upgrade of Ansible.
+```
+git clone --branch tkgs https://github.com/laidbackware/ansible-for-vsphere.git /tmp/ansible-for-vsphere \
+cp -rf /tmp/ansible-for-vsphere/* /usr/local/lib/python3.*/dist-packages/ansible_collections/community/vmware/
+```
+Once all setup run:
 ```
 ansible-playbook deploy.yml --extra-vars="@var-examples/minimal/answerfile-minimal.yml"
 ```

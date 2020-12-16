@@ -3,25 +3,31 @@
   hosts: localhost
   gather_facts: False
   strategy: free
-  pre_tasks:
-  - name: Ensure xorriso is installed
-    package:
-      name: xorriso
-      state: present  
+  # pre_tasks:
+  # - name: Ensure xorriso is installed
+  #   package:
+  #     name: xorriso
+  #     state: present  
   # vars:
   # # empty var to populate
   #   datastores_to_add:
     
   #   disks_to_add: ""
   roles:
-    - deploy-vc-and-hosts
-    - datacenter
-    - clusters
-    - vswitch0-port-groups
-    - local-datastores
-    - enable-cluster-ha
-    - resource-pools
-    - role: distributed-switches
-      when: 'distributed_switches is defined'
-    - role: distributed-port-groups
-      when: 'distributed_switches is defined'
+    # - vsphere-deploy-vc-and-hosts
+    # - vsphere-datacenter
+    # - vsphere-clusters
+    # - vsphere-vswitch0-port-groups
+    # - vsphere-local-datastores
+    # - vsphere-enable-cluster-services
+    # - vsphere-resource-pools
+    # - role: vsphere-distributed-switches
+    #   when: 'distributed_switches is defined'
+    # - role: vsphere-distributed-port-groups
+    #   when: 'distributed_switches is defined'
+    # - role: vsphere-tag-datastore
+    #   when: 'tkgs is defined'
+    # - role: tkgs-vyos-router
+    #   when: 'tkgs is defined and tkgs.router is defined'
+    - role: tkgs-ha-proxy
+      when: 'tkgs is defined'  
