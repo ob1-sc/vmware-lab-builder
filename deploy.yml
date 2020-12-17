@@ -4,13 +4,13 @@
   gather_facts: False
   strategy: free
   roles:
-    - vsphere-deploy-vc-and-hosts
-    - vsphere-datacenter
-    - vsphere-clusters
-    - vsphere-vswitch0-port-groups
-    - vsphere-local-datastores
-    - vsphere-enable-cluster-services
-    - vsphere-resource-pools
+    - role: vsphere-deploy-vc-and-hosts
+    - role: vsphere-datacenter
+    - role: vsphere-clusters
+    - role: vsphere-vswitch0-port-groups
+    - role: vsphere-local-datastores
+    - role: vsphere-enable-cluster-services
+    - role: vsphere-resource-pools
     - role: vsphere-distributed-switches
       when: 'distributed_switches is defined'
     - role: vsphere-distributed-port-groups

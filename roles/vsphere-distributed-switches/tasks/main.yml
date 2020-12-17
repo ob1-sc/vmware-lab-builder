@@ -13,7 +13,6 @@
     state: present
   with_items: "{{ distributed_switches }}"
   delegate_to: localhost
-  when: 'distributed_switches is defined'
   
 # Build of host to vds mapping buy using the nest_cluster field in the host spec
 - name: Build list of hosts to add to each vds
@@ -34,7 +33,6 @@
       {% endfor %}
       {% endfor %}
       ]
-  when: 'distributed_switches is defined'
 
 - name: Add Host to dVS
   community.vmware.vmware_dvs_host:
@@ -48,4 +46,3 @@
     state: present
   with_items: "{{ host_vds_binding }}" 
   delegate_to: localhost
-  when: 'distributed_switches is defined'
