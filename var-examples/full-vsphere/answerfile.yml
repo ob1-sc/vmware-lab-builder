@@ -12,7 +12,7 @@ nested_host_password: "VMware1!"
 
 hosting_vcenter: # This is the vCenter which will be the target for nested vCenters and ESXi hosts
   ip: "192.168.0.113"
-  user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
+  username: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
   password: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
   datacenter: "Home" # Target for all VM deployment
 
@@ -21,7 +21,7 @@ nested_vcenter: # the vCenter appliance that will be deployed
   mask: "22"
   gw: "192.168.0.1"
   host_name: "192.168.0.181" # FQDN if there is working DNS server, otherwise put the ip as a name
-  user: "administrator@vsphere.local" 
+  username: "administrator@vsphere.local" 
   password: "VMware1!"
   datacenter: "Lab" # DC to create after deployment
   # Below are properties of parent cluster

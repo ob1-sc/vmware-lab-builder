@@ -17,7 +17,11 @@
       when: 'distributed_switches is defined'
     - role: vsphere-tag-datastore
       when: 'tkgs is defined'
+    - role: vsphere-content-library
+      when: 'tkgs is defined'
     - role: tkgs-vyos-router
       when: 'tkgs is defined and tkgs.router is defined'
     - role: tkgs-ha-proxy
-      when: 'tkgs is defined'  
+      when: 'tkgs is defined'
+    - role: tkgs-enable-cluster
+      when: 'tkgs is defined'

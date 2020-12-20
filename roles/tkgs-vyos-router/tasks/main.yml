@@ -36,13 +36,13 @@
       -c "source /opt/vyatta/etc/functions/script-template
       configure
       delete interfaces ethernet eth0 address dhcp
-      set interfaces ethernet eth0 address '{{ tkgs.router.uplink_ip }}/{{ tkgs.management_network_subnet_bits }}'
-      set interfaces ethernet eth1 address '{{ tkgs.workload_network_address | ipmath(1) }}/{{ tkgs.workload_network_netmask_bits }}'
+      set interfaces ethernet eth0 address '{{ tkgs.router.uplink_ip }}/{{ tkgs.management_subnet_bits }}'
+      set interfaces ethernet eth1 address '{{ tkgs.workload_address | ipmath(1) }}/{{ tkgs.workload_subnet_bits }}'
       set service ssh port '22'
-      set protocols static route 0.0.0.0/0 next-hop {{ tkgs.management_network_gateway }} distance '1'
+      set protocols static route 0.0.0.0/0 next-hop {{ tkgs.management_gateway }} distance '1'
 
       set nat source rule 100 outbound-interface 'eth0'
-      set nat source rule 100 source address '{{ tkgs.workload_network_address }}/{{ tkgs.workload_network_netmask_bits }}'
+      set nat source rule 100 source address '{{ tkgs.workload_address }}/{{ tkgs.workload_subnet_bits }}'
       set nat source rule 100 translation address masquerade
 
       commit

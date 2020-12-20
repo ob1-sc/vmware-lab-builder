@@ -64,8 +64,9 @@ docker run  --rm \
 When running the playbook, run destroy.yml instead. E.g. `ansible-playbook destroy.yml --extra-vars="@var-examples/minimal/answerfile-minimal.yml"`
 
 # Docker Image Build
+From the root of the repo. Note no-cache flag used to force builds to pickup any changes to the Ansible repo.
 ```
-docker build ./docker/ubuntu/. -t laidbackware/vsphere-ansible:latest
+docker build --no-cache ./docker/ubuntu/. -t laidbackware/vsphere-ansible:latest
 ```
 
 # Troubleshooting

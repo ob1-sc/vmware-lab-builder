@@ -6,16 +6,24 @@ environment_tag: "tkgs" # Used to prepend object names
 dns1: "192.168.0.110"
 dns2: "192.168.0.1"
 domain: "home.local"
-ntp: time1.google.com
+ntp: "192.168.0.1"
 disk_mode: thin #How all disks should be deployed
 # This will be set everywhere!
 master_password: "VMware1!"
 nested_host_password: "{{master_password}}"
 
+hosting_cluster: Physical
+hosting_datastore: NVME
+hosting_port_group: Nest
+hosting_network_address: "192.168.0.0"
+hosting_network_bit: "22"
+hosting_network_gateway: "192.168.0.1"
+# You must have a minimum of 8 IP continous IP addresses free, plus 1 per host
+hosting_network_starting_ip: "192.168.0.170"
 
 hosting_vcenter: # This is the vCenter which will be the target for nested vCenters and ESXi hosts
   ip: "192.168.0.113"
-  user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
+  username: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
   password: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
   datacenter: "Home" # Target for all VM deployment
 
@@ -24,13 +32,13 @@ nested_vcenter: # the vCenter appliance that will be deployed
   mask: "22"
   gw: "192.168.0.1"
   host_name: "192.168.0.171" # FQDN if there is working DNS server, otherwise put the ip as a name
-  user: "administrator@vsphere.local" 
-  password: "{{master_password}}"
+  username: "administrator@vsphere.local" 
+  password: "{{ master_password }}"
   datacenter: "Lab" # DC to create after deployment
   # Below are properties of parent cluster
-  hosting_network: "Net1" # Parent port group where the vCenter VM will be deployed
-  hosting_cluster: "Physical" # Parent cluster where the vCenter VM will be deployed
-  hosting_datastore: "NVME" # Parent datastore where the vCenter VM will be deployed
+  hosting_network: "{{ hosting_port_group }}" # Parent port group where the vCenter VM will be deployed
+  hosting_cluster: "{{ hosting_cluster }}" # Parent cluster where the vCenter VM will be deployed
+  hosting_datastore: "{{ hosting_datastore }}" # Parent datastore where the vCenter VM will be deployed
   
 nested_clusters: # You can add clusters in this section by duplicating the existing cluster
   tkgs-cluster: # This will be the name of the cluster in the nested  vCenter. Below are the minimum settings.
@@ -83,33 +91,40 @@ distributed_switches: # To not create any distributed switches, comment this sec
         vlan_id: "666"
 
 tkgs:
-  vsphere_cluster: tkgs-cluster
+  cluster_ip_services_cidr: "10.255.255.0/24"
+  content_library_name: tkgs-library
+  content_library_url: "http://wp-content.vmware.com/v2/latest/lib.json"
   datastore_tag_category: tkgs-storage-category    
   datastore_tag: tkgs-storage
   datastore_to_tag: datastore-esx1
-  load_balancer_ip: "192.168.0.173:5556"
+  ntp_server_list: ["{{ ntp }}"]
+  # load_balancer_ip: "192.168.0.173:5556"
   load_balancer_virtual_servers: 172.31.0.10-172.31.0.50
   management_port_group: routed-pg
-  management_subnet: "255.255.252.0"
+  management_netmask: "255.255.252.0"
   # management_network_address: "192.168.0.0"
-  management_network_subnet_bits: "22"
-  management_network_gateway: "192.168.0.1"
+  management_starting_address: "192.168.0.174"
+  management_subnet_bits: "22"
+  management_gateway: "192.168.0.1"
+  storage_policy_name: tkgs-storage-policy
+  supervisor_size: tiny
+  vsphere_cluster: tkgs-cluster
   workload_port_group: private-pg
-  workload_network_address: "172.31.0.0"
-  workload_network_netmask_bits: "24"
-  workload_subnet: "255.255.255.0"
+  workload_address: "172.31.0.0"
+  workload_subnet_bits: "24"
+  workload_netmask: "255.255.255.0"
   workload_gateway: "172.31.0.1"
   workload_ip_range: 172.31.0.51-172.31.0.100
 
   router:
     uplink_ip: "192.168.0.170"
-    # uplink_netmask_bits: "{{ tkgs.management_network_subnet_bits }}"
-    # uplink_network_gateway: "{{ tkgs.management_network_gateway }}"
+    # uplink_netmask_bits: "{{ tkgs.management_subnet_bits }}"
+    # uplink_gateway: "{{ tkgs.management_gateway }}"
     # uplink_port_group: routed-pg
-    # internal_network_address: "172.31.0.0" # ??
+    # internal_address: "172.31.0.0" # ??
     # internal_netmask: "255.255.255.0" #!
     # internal_netmask_bits: 22
-    # internal_network_gateway: "172.31.0.1" #!
+    # internal_gateway: "172.31.0.1" #!
     # internal_port_group: private-pg
     # admin_password: "{{ master_password }}"
 
@@ -118,14 +133,12 @@ tkgs_haproxy:
   nameservers: "{{ dns1 }}, {{ dns2 }}"
   management_ip: "192.168.0.173/22"
   management_port: 5556 # not set
-  management_gateway: "{{ tkgs.management_network_gateway }}"
+  management_gateway: "{{ tkgs.management_gateway }}"
   management_port_group: "routed-pg"
-  workload_ip: "{{ tkgs.workload_network_address | ipmath(2) }}"
-  workload_gateway: "{{ tkgs.workload_network_address | ipmath(1) }}/{{ tkgs.management_network_subnet_bits }}"
+  workload_ip: "{{ tkgs.workload_address | ipmath(2) }}/{{ tkgs.workload_subnet_bits }}"
+  workload_gateway: "{{ tkgs.workload_address | ipmath(1) }}"
   # workload_port_group: "private-pg"
   service_ip_range: "172.31.0.128/25"
-  haproxy_user: admin
-  haproxy_pwd: "{{ master_password }}"
-
-
-
+  username: admin
+  password: "{{ master_password }}"
+  

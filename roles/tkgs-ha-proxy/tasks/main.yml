@@ -29,5 +29,5 @@
       network.workload_ip: "{{ tkgs_haproxy.workload_ip }}"
       network.workload_gateway: "{{ tkgs_haproxy.workload_gateway }}"
       loadbalance.service_ip_range: "{{ tkgs_haproxy.service_ip_range }}"
-      loadbalance.haproxy_user: "{{ tkgs_haproxy.haproxy_user }}"
-      loadbalance.haproxy_pwd:  "{{ tkgs_haproxy.haproxy_pwd }}"
+      loadbalance.haproxy_user: "{{ tkgs_haproxy.username }}"
+      loadbalance.haproxy_pwd:  "{{ tkgs_haproxy.password }}"

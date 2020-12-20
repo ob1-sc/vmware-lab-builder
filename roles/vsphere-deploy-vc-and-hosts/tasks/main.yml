@@ -2,7 +2,7 @@
 - name: Deploy ESXi
   community.vmware.vmware_deploy_ovf:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     validate_certs: no
     name: "{{ environment_tag }}-{{ item.key }}"
@@ -50,7 +50,7 @@
 - name: Gather disk info from virtual machine using name
   community.vmware.vmware_guest_disk_info:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     datacenter: "{{ hosting_vcenter.datacenter }}"
     validate_certs: no
@@ -92,7 +92,7 @@
 - name: Remove disks from virtual machine using name
   community.vmware.vmware_guest_disk:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     datacenter: "{{ hosting_vcenter.datacenter }}"
     validate_certs: no
@@ -128,7 +128,7 @@
 - name: Add/modify disks
   community.vmware.vmware_guest_disk:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     validate_certs: no
     datacenter: "{{ hosting_vcenter.datacenter }}"
@@ -141,7 +141,7 @@
 - name: Edit VM CPU, Memory and networks
   community.vmware.vmware_guest:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     validate_certs: no
     datacenter: "{{ hosting_vcenter.datacenter }}"
@@ -156,7 +156,7 @@
 - name: Set the state of a virtual machine to power on
   community.vmware.vmware_guest_powerstate:
     hostname: "{{ hosting_vcenter.ip }}"
-    username: "{{ hosting_vcenter.user }}" 
+    username: "{{ hosting_vcenter.username }}" 
     password: "{{ hosting_vcenter.password }}" 
     validate_certs: no
     name: "{{ environment_tag }}-{{ item.key }}"
@@ -196,12 +196,15 @@
     file:
       path: '{{tmp_dir}}/vcsa'
       state: directory
-      mode: '0755'
+      mode: '0766'
 
   - name: Extract VCSA ISO image
     command: bsdtar -xf {{vc_iso}} -C {{tmp_dir}}/vcsa
     when: not vcenter_exists
   
+  - name: Set permissions
+    file: dest={{tmp_dir}}/vcsa mode=777 recurse=yes
+
   - name: Create JSON template file for VCSA 6.7 with embeded PSC
     template: 
       src=embedded_vCSA_on_VC_6.7.json

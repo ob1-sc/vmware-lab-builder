@@ -47,7 +47,7 @@
     username: "{{ nested_vcenter.user }}"
     password: "{{ nested_vcenter.password }}"
     validate_certs: false
-    name: "tkgs-storage-policy"
+    name: "{{ tkgs.storage_policy_name }}"
     description: "TKGS storage performance policy"
     tag_category: "{{ tkgs.datastore_tag_category }}"
     tag_name: "{{ tkgs.datastore_tag }}"
