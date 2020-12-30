@@ -1,4 +1,7 @@
 ---
+
+- debug: msg="Deploying the following ESXi {{ nested_hosts }}"
+
 - name: Deploy ESXi
   community.vmware.vmware_deploy_ovf:
     hostname: "{{ hosting_vcenter.ip }}"

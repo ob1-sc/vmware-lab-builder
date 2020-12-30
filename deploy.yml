@@ -15,15 +15,20 @@
       when: 'distributed_switches is defined'
     - role: vsphere/vsphere-distributed-port-groups
       when: 'distributed_switches is defined'
-    ### vSphere with Kuberentes Section
-    - role: vsphere/vsphere-tag-datastore
-      when: 'tkgs is defined'
-    - role: vsphere/vsphere-content-library
-      when: 'tkgs is defined'
-    - role: tkgs/tkgs-vyos-router
-      when: 'tkgs is defined and tkgs.router is defined'
-    - role: tkgs/tkgs-ha-proxy
-      when: 'tkgs is defined'
-    - role: tkgs/tkgs-enable-cluster
-      when: 'tkgs is defined'
+
+    # NSX-T Section
+    - role: nsxt/nsxt-manager
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-ip-pools
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-uplink-profiles
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-transport-zones
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-transport-nodes
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-edge-clusters
+      when: 'nsxt is defined'
+    - role: nsxt/nsxt-routing
+      when: 'nsxt is defined'
     
