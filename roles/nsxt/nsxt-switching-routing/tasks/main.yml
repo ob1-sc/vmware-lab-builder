@@ -45,6 +45,8 @@
     tags: "{{ item.tags | default(omit) }}"
   with_items: "{{ nsxt.overlay_segments }}"
 
+- debug: var=nsxt.tier_1_gateways
+
 - name: Create Tier 1 Gateways
   nsxt_policy_tier1:
     hostname: "{{ nsxt.manager.hostname }}"

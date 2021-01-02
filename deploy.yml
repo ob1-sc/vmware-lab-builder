@@ -29,6 +29,6 @@
       when: 'nsxt is defined'
     - role: nsxt/nsxt-edge-clusters
       when: 'nsxt is defined'
-    - role: nsxt/nsxt-routing
+    - role: nsxt/nsxt-switching-routing
       when: 'nsxt is defined'
     

@@ -15,7 +15,7 @@ Below is the layout of the opinionated deployment, which can be customized by ed
 - The NSX-T Manager VM will be deployed as a standard VM on your physical host.
 - A single vCenter will be added.
 - All components will be added to a single nested ESXi host. This can be customized by editing the yaml.
-- The T0 uplink will share the same network as the management interfaces in vmnic0
+- A single T0 gataway will be deployed and the T0 uplink will share the same network as the management interfaces in vmnic0
 - If you want to have more that 1 nested host, then your tep network should be set to MTU of at least 1600 to allow the hosts to communicate.
 - The tep network is passed in twice because the edge tep port group cannot be on the same VDS that will be used by the host transport nodes.
 
@@ -26,8 +26,8 @@ export NSXT_LICENSE_KEY=AAAAA-BBBBB-CCCCC-DDDDD-EEEEE
 ```
 
 ## Known Issues
-- At 3.1.0 the edge cluster is created successfully but the creation of the t0 is blocked for a period of time. Currently fixed by adding a 180 second delay. If a failure occurs, re-run the playbook.
-- A number of modules are not properly idempotent and report changed even though no change has been made. For example this causes the 3 minute delay to always trigger as the edge cluster will always show as changed.
+- At 3.1.0 the edge cluster is created successfully but the creation of the t0 is blocked for a period of time. This is likely an ansible issues as it doesn't appear in the UI. Currently fixed by adding a 300 second delay. If a failure occurs, re-run the playbook.
+- A number of modules are not properly idempotent and report changed even though no change has been made.
 
 ### Running locally
 This first time you clone this repo, if you want to use the NSX-T modules when running locally you must either clone using `git clone --recursive` or after a standard clone command run `git submodule update --init --recursive`. The Docker image includes this repo.</br>

@@ -75,7 +75,6 @@ If adding new variables to the answerfiles be sure to only use underscores as va
 ## Roadmap
 For solution specifc features, check the relevant example directory.
 - Add output at the end showing all IP mappings
-- Add roles for end to end NSX-T deployment
 - Add module to deploy TKGS with NSX-T
 - Add ability to deploy VMs to folders and resource pools on parent VC
 - Add NFS datastore creation

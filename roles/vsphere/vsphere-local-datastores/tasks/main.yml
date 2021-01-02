@@ -17,7 +17,7 @@
     host_disk_map: >-
       {
       {% for cluster in cluster_host_disks.results %}
-      {% for host_name, disks in cluster.hosts_disk_facts.items() %}
+      {% for host_name, disks in cluster.hosts_disk_info.items() %}
       {% for disk in disks %}
       "{{cluster.invocation.module_args.cluster_name}}_{{host_name}}_{{disk.device_ctd_list[0]}}": 
         "{{disk.canonical_name}}",

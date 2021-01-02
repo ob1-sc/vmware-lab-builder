@@ -364,7 +364,7 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=False,
-                           required_if=(
+                           required_if=[
                                         ('state', 'present', ['content_library_name', 'dns_servers', 'haproxy_ca_chain',
                                                               'haproxy_management_ip', 'haproxy_password', 
                                                               'haproxy_range_cidrs', 'haproxy_username',
@@ -375,7 +375,7 @@ def main():
                                                               'workload_netmask', 'services_cidr', 'supervisor_size',
                                                               'storage_policy_name'
                                                               ]),
-                                       )
+                                       ]
                           )
 
     vmware_namespace_cluster_manage = VmwareNamespaceClusterVdsManage(module)

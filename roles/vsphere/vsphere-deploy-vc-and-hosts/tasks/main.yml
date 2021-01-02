@@ -28,7 +28,7 @@
       guestinfo.ipaddress: "{{ item.ip }} "
       guestinfo.netmask: "{{ item.mask }}"
       guestinfo.gateway: "{{ item.gw }}"
-      guestinfo.vlan: "{{ nested_clusters[item.nested_cluster].mgmt_vlan | default(0) }}"
+      guestinfo.vlan: "{{ nested_clusters[item.nested_cluster].management_vmk0_vlan | default(0) }}"
       guestinfo.dns: "{{ dns_server }}"
       guestinfo.domain: "{{ dns_domain }}"
       guestinfo.ntp: "{{ ntp_server_ip }}"
@@ -63,6 +63,8 @@
   with_items: "{{ nested_hosts }}"
 
 - debug: msg="{{ disk_info }}"
+
+- debug: msg="Configuring ESXi hosts to cluster spec > {{ nested_clusters }}"
 
 # Build list of hosts with disks to be added, inlcuding the 3 base disks
 # This is because the base ESXi OVA comes with 2 extra disks which might not be needed
@@ -150,7 +152,7 @@
     datacenter: "{{ hosting_vcenter.datacenter }}"
     name: "{{ environment_tag }}-{{ item.name }}"
     hardware:
-      memory_mb: "{{ nested_clusters[item.nested_cluster].ram_in_gb  *1024 }}"
+      memory_mb: "{{ nested_clusters[item.nested_cluster].ram_in_gb | int  *1024 }}"
       num_cpus: "{{ nested_clusters[item.nested_cluster].cpu_cores }}"
     networks: "{{nested_clusters[item.nested_cluster].vmnic_physical_portgroup_assignment }}"
   delegate_to: localhost

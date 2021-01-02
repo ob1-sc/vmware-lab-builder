@@ -16,52 +16,23 @@ hosting_vcenter: # This is the vCenter which will be the target for nested vCent
   password: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
   datacenter: "Home" # Target for all VM deployment
 
-# This section is only referenced by other variables in this file
+# This section is only reference by other variables in this file
+ # This variable is only referenced within this file
 opinionated:
   master_password: "VMware1!"
-  number_of_hosts: 1 # number of ESXi VMs to deploy
-  nested_hosts:
-    cpu_cores: 4 # CPU count per nested host
-    ram_in_gb: 32 # memory per nested host
-    local_disks: # (optional) this section can be removed to not modify local disks
-      - size_gb: 200
-        datastore_prefix: "datastore" # omit this to not have a datastore created
   hosting_cluster: Physical
   hosting_datastore: NVME
   hosting_network:
     base:
       port_group: Nest
-      vlan_id: 0
       cidr: "192.168.0.0/22"
       gateway: "192.168.0.1"
-      # A NSX-T deployment requires 4 IPs, plus 1 per esxi host. They MUST be contiguous.
       starting_addr: "192.168.0.120"
     nsxt_tep:
       port_group: TEP
-      vlan_id: 0
       cidr: "172.16.0.0/24" # IP calculation depends on this being a /24
   nsxt:
-    tier0_gateway_name: test-t0
-    tier1_gateways:
-      - display_name: test-t1-1
-        route_advertisement_types:
-          - "TIER1_CONNECTED"
-          - "TIER1_NAT"
-        segments:
-          - display_name: test-seg-1
-            interface_cidr: "10.254.1.1/24"
-      - display_name: test-t1-2
-        route_advertisement_types:
-          - "TIER1_CONNECTED"
-        segments:
-          - display_name: test-seg-2
-            interface_cidr: "10.254.2.1/24"
-    standalone_overlay_segments:
-      - display_name: test-seg-3
-
-#####################################################################
-### No need to edit below this line for an opinionated deployment ###
-#####################################################################
+    tier0_gateway_name: t0
 
 nested_vcenter: # the vCenter appliance that will be deployed
   ip: "{{ opinionated.hosting_network.base.starting_addr }}" # vCenter ip address 
@@ -83,16 +54,18 @@ nested_clusters: # You can add clusters in this section by duplicating the exist
     hosting_cluster: "{{ opinionated.hosting_cluster }}" # the cluster where physical ESXi is connected to. The nested VMs will be deployed here
     hosting_datastore: "{{ opinionated.hosting_datastore }}" # Datastore target for nested ESXi VMs
     # Settings below are assigned to each host in the cluster
-    management_vmk0_vlan: "{{ opinionated.hosting_network.base.vlan_id }}"
+    management_vmk0_vlan: 0
     vswitch0_vm_port_group_name: vm-network
-    vswitch0_vm_port_group_vlan: "{{ opinionated.hosting_network.base.vlan_id }}"
-    cpu_cores: "{{ opinionated.nested_hosts.cpu_cores }}" # CPU count
-    ram_in_gb: "{{ opinionated.nested_hosts.ram_in_gb }}" # memory
+    vswitch0_vm_port_group_vlan: 0
+    cpu_cores: 6 # CPU count
+    ram_in_gb: 64 # memory
     # In order list of disks to assign to the nested host. All will be marked as SSD.
     # Datastore names will be automatically be pre-pended with the hostname. E.g esx1
     # If the datastore_prefix property is removed the disk will not be set as a datastore
     # To leave the default OVA disks in place, delete this section.
-    nested_hosts_disks: "{{ opinionated.nested_hosts.local_disks | default(omit) }}"
+    nested_hosts_disks: 
+      - size_gb: 400
+        datastore_prefix: "datastore" 
     # Added in vmnic order, these port groups must exist on the physical host
     # Must specify at least 2 port groups, up to a maximum of 10
     vmnic_physical_portgroup_assignment: 
@@ -100,20 +73,13 @@ nested_clusters: # You can add clusters in this section by duplicating the exist
       - name: "{{ opinionated.hosting_network.nsxt_tep.port_group }}"
       - name: "{{ opinionated.hosting_network.nsxt_tep.port_group }}"
 
-# See the custom example for host to build hosts out manually
-nested_hosts: >-
-  [
-    {% for host_number in range(opinionated.number_of_hosts) %}
-    {
-      "name": "esx{{ host_number + 1 }}",
-      "ip": "{{ opinionated.hosting_network.base.starting_addr | ipmath(4 + host_number) }}",
-      "mask": "{{ opinionated.hosting_network.base.cidr | ansible.netcommon.ipaddr('netmask') }}",
-      "gw": "{{ opinionated.hosting_network.base.gateway }}",
-      "nested_cluster": "compute"
-
-    },
-    {% endfor %}
-  ]
+# You can add nested ESXi hosts below
+nested_hosts:
+  - name: esx1 # environment_tag will prepend the name to create the VM name
+    ip: "{{ opinionated.hosting_network.base.starting_addr | ipmath(4) }}" # This will also be used as the hostname in the nested vCenter
+    mask: "{{ opinionated.hosting_network.base.cidr | ansible.netcommon.ipaddr('netmask') }}"
+    gw: "{{ opinionated.hosting_network.base.gateway }}"
+    nested_cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
 
 distributed_switches: # (optional) - section can be removed to not create any distributed switches
   - vds_name: nsxt-vds
@@ -134,7 +100,7 @@ distributed_switches: # (optional) - section can be removed to not create any di
       - vmnic2
     distributed_port_groups: # (optional) - section can be removed to not create any distributed port groups
       - port_group_name: tep-pg
-        vlan_id: "{{ opinionated.hosting_network.nsxt_tep.vlan_id |default(0) }}" 
+        vlan_id: "0"    
 
 nsxt: # (optional) - section can be removed to not create any nsxt objects
   manager:
@@ -189,12 +155,10 @@ nsxt: # (optional) - section can be removed to not create any nsxt objects
   transport_zones:
     - display_name: tz-overlay
       transport_type: OVERLAY
-      # host_switch_name: "{{ distributed_switches[0].vds_name }}"
       nested_nsx: True # Set this to True if you use NSX-T for your physical host networking
       description: "Overlay Transport Zone"
     - display_name: tz-vlan
       transport_type: VLAN
-      # host_switch_name: sw_vlan
       description: "Uplink Transport Zone"
 
   transport_node_profiles:
@@ -263,7 +227,7 @@ nsxt: # (optional) - section can be removed to not create any nsxt objects
 
   # For full spec see - https://github.com/laidbackware/ansible-for-nsxt/blob/vmware-lab-builder/library/nsxt_policy_tier0.py
   tier_0:
-    display_name: "{{ opinionated.nsxt.tier0_gateway_name }}"
+    display_name: tier-0
     ha_mode: ACTIVE_STANDBY
     uplink_ip: "{{ opinionated.hosting_network.base.starting_addr | ipmath(3) }}"
     disable_firewall: True
@@ -290,60 +254,27 @@ nsxt: # (optional) - section can be removed to not create any nsxt objects
               edge_node_display_name: edge-node-1
             mtu: 1500
 
-  # build list of segments from opinionated section. See custom deployment for example of how to configurre
-  overlay_segments: >-
-    [
-      {% for overlay_segment in opinionated.nsxt.standalone_overlay_segments %}
-      {
-        "display_name": "{{ overlay_segment.display_name }}",
-        "transport_zone_display_name": "tz-overlay"
-      },
-      {% endfor %}
-      {% for tier1_gateway in opinionated.nsxt.tier1_gateways %}
-      {% if "segments" in  tier1_gateway %}
-      {% for segment in tier1_gateway.segments %}
-      {
-        "display_name": "{{ segment.display_name }}",
-        "transport_zone_display_name": "tz-overlay"
-      },
-      {% endfor %}
-      {% endif %}
-      {% endfor %}
-    ]
+  overlay_segments:
+  - display_name: test-seg-1
+    transport_zone_display_name: tz-overlay
 
-  tier_1_gateways: >-
-    [
-      {% for tier1_gateway in opinionated.nsxt.tier1_gateways %}
-      {
-        "display_name": "{{ tier1_gateway.display_name }}",
-        "route_advertisement_types": "{{ tier1_gateway.route_advertisement_types }}",
-        "tier0_display_name": "{{ opinionated.nsxt.tier0_gateway_name }}",
-        "locale_services" : [
-          {
-            "state": "present",
-            "display_name": "{{ tier1_gateway.display_name }}-ls",
-            "edge_cluster_info": {
-              "edge_cluster_display_name": "edge-cluster-1"
-            },
-            "interfaces" : [
-              {% for segment in tier1_gateway.segments %}
-              {
-                "display_name": "{{ tier1_gateway.display_name }}-{{ segment.display_name }}-if",
-                "state": "present",
-                "mtu": 1500,
-                "subnets": [
-                  {
-                    "ip_addresses": ["{{ segment.interface_cidr.split('/')[0] }}"],
-                    "prefix_len": {{ segment.interface_cidr.split('/')[1] | int }}
-                  },
-                ],
-                "segment_display_name": "{{ segment.display_name }}"
-              },
-              {% endfor %}
-
-            ]
-          }
-        ]
-      },
-      {% endfor %}
-    ]
+  # For full spec see - https://github.com/laidbackware/ansible-for-nsxt/blob/vmware-lab-builder/library/nsxt_policy_tier1.py
+  tier_1_gateways:
+  - display_name: "test-t1"
+    route_advertisement_types:
+      - "TIER1_CONNECTED"
+      - "TIER1_NAT"
+    tier0_display_name: tier-0
+    locale_services:
+      - state: present
+        display_name: test-t1ls-2
+        edge_cluster_info:
+          edge_cluster_display_name: edge-cluster-1
+        interfaces:
+          - display_name: "test-t1-t1ls-iface"
+            state: present
+            mtu: 1500
+            subnets:
+              - ip_addresses: ["10.254.0.1"]
+                prefix_len: 24
+            segment_display_name: "test-seg-1"
