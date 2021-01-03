@@ -2,7 +2,6 @@
 - name: Deploy VC and Hosts
   hosts: localhost
   gather_facts: False
-  strategy: free
   roles:
     - role: vsphere/vsphere-deploy-vc-and-hosts
     - role: vsphere/vsphere-datacenter
@@ -31,4 +30,16 @@
       when: 'nsxt is defined'
     - role: nsxt/nsxt-switching-routing
       when: 'nsxt is defined'
+
+    ### vSphere with Kubernetes Section
+    - role: vsphere/vsphere-tag-datastore
+      when: 'tkgs is defined'
+    - role: vsphere/vsphere-content-library
+      when: 'tkgs is defined'
+    - role: vsphere-tanzu/tkgs-vyos-router
+      when: 'tkgs is defined and tkgs.router is defined'
+    - role: vsphere-tanzu/tkgs-ha-proxy
+      when: 'tkgs is defined'
+    - role: vsphere-tanzu/tkgs-enable-cluster
+      when: 'tkgs is defined'
     

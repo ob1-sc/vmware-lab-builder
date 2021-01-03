@@ -92,7 +92,7 @@ docker build --no-cache ./docker/ubuntu/. -t laidbackware/vsphere-ansible:latest
 ## Local Usage
 At the current time it's advised against trying to run locally as modifications are needed to the vSphere community modules, which have pull requests pending.<br/>
 After cloneing the repo, you must update the relevant answerfile  yaml to point to your ova and iso file, plus change any IP addresses or credentials.<br/>
-Currently the upstream vsphere community modules don't fully support all actions, so you must replace the the modules which ship with Ansible 2.10 with the ones provied. This only needs to be done after an install or upgrade of Ansible.
+
 Software dependencies for Linux:
 - Ansible 2.10 or higher
 - Linux tools `apt-get install libarchive-tools sshpass python3-pip git`
@@ -100,12 +100,25 @@ Software dependencies for Linux:
 - Install [vSphere Automation SDK](https://github.com/vmware/vsphere-automation-sdk-python)
     `pip install --upgrade pip setuptools`
     `pip install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git`
+
+### vSphere Ansible mods
+If the vsphere collection has been previously added via ansible-galaxy, the directory should be removed.<br/>
+Currently the upstream vsphere community modules don't fully support all actions, so you must replace the the modules which ship with Ansible 2.10 with the ones provied. This only needs to be done after an install or upgrade of Ansible. The following will replace your local copy with the modified copy.
 ```
 git clone --branch tkgs https://github.com/laidbackware/ansible-for-vsphere.git /tmp/ansible-for-vsphere
 # Below is an example which works for Ubuntu, the dist-packages location may differ for other distros.
 cp -rf /tmp/ansible-for-vsphere/* /usr/local/lib/python3.*/dist-packages/ansible_collections/community/vmware/
-# In the vsphere collection has been previously added via ansible-galaxy, the directory should be removed.
 ```
+### Cloning repos for the extra modules
+You will need to use git to clone ansible-for-nsxt and ansible-for-vsphere-tanzu, then export the location of the modules. A specific branch will be cloned for ansible-for-nsxt as it contains a necessary fix which has a pull request pending.
+```
+cd $HOME/workspace
+git clone --branch vmware-lab-builder https://github.com/laidbackware/ansible-for-nsxt.git
+git clone https://github.com/laidbackware/ansible-for-vsphere-tanzu.git
+export ANSIBLE_LIBRARY=$HOME/workspace/ansible-for-nsxt:$HOME/workspace/ansible-for-vsphere-tanzu
+export ANSIBLE_MODULE_UTILS=$HOME/workspace/ansible-for-nsxt/module_utils
+```
+
 Once all setup run the playbooks can be run locally:
 ```
 ansible-playbook deploy.yml --extra-vars="@var-examples/base-vsphere/answerfile-1host-opinionated"

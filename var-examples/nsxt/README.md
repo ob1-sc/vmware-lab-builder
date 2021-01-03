@@ -28,11 +28,3 @@ export NSXT_LICENSE_KEY=AAAAA-BBBBB-CCCCC-DDDDD-EEEEE
 ## Known Issues
 - At 3.1.0 the edge cluster is created successfully but the creation of the t0 is blocked for a period of time. This is likely an ansible issues as it doesn't appear in the UI. Currently fixed by adding a 300 second delay. If a failure occurs, re-run the playbook.
 - A number of modules are not properly idempotent and report changed even though no change has been made.
-
-### Running locally
-This first time you clone this repo, if you want to use the NSX-T modules when running locally you must either clone using `git clone --recursive` or after a standard clone command run `git submodule update --init --recursive`. The Docker image includes this repo.</br>
-You must also export the location of the modules by running the following from the root of the repo.
-```
-export ANSIBLE_LIBRARY=$PWD/ansible-for-nsxt
-export ANSIBLE_MODULE_UTILS=$PWD/ansible-for-nsxt/module_utils
-```
