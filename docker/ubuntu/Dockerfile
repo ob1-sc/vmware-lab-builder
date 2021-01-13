@@ -26,8 +26,8 @@ RUN set -xe \
     \
     && echo "****** Cloning ansible-for-nsxt ******" \
     && mkdir /repos \
-    && git clone https://github.com/laidbackware/ansible-for-vsphere-tanzu.git /repos/ansible-for-nsxt \
-    && git clone --branch vmware-lab-builder https://github.com/laidbackware/ansible-for-nsxt.git /repos/ansible-for-vsphere-tanzu \
+    && git clone --branch vmware-lab-builder https://github.com/laidbackware/ansible-for-nsxt.git /repos/ansible-for-nsxt \
+    && git clone https://github.com/laidbackware/ansible-for-vsphere-tanzu.git /repos/ansible-for-vsphere-tanzu \
     \
     && echo "****** Removing build tools ******" \
     && apt remove -y build-essential python3-pip python3-dev git \

@@ -18,7 +18,7 @@ hosting_vcenter: # This is the vCenter which will be the target for nested vCent
 # This section is only referenced by other variables in this file
 opinionated:
   master_password: "VMware1!"
-  number_of_hosts: 4
+  number_of_hosts: 2
   nested_hosts:
     cpu_cores: 4 # CPU count
     ram_in_gb: 16 # memory

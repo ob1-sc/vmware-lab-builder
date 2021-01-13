@@ -42,15 +42,16 @@ docker run --rm \
     --env PARENT_VCENTER_PASSWORD=${PARENT_VCENTER_PASSWORD} \
     --env SOFTWARE_DIR='/software_dir' \
     --env ANSIBLE_FORCE_COLOR='true' \
+    --env NSXT_LICENSE_KEY=${NSXT_LICENSE_KEY} \
     --volume ${SOFTWARE_DIR}:/software_dir \
     --volume ${PWD}:/work \
     laidbackware/vsphere-ansible \
     ansible-playbook /work/deploy.yml \
-        --extra-vars '@/work/var-examples/base-vsphere/1host-opinionated.yml'
+        --extra-vars '@/work/var-examples/base-vsphere/1host-minimal-opinionated.yml'
 ```
 
 ### Destroying
-To destroy run use destroy.yml. E.g. `ansible-playbook destroy.yml --extra-vars="@var-examples/vsphere-base/1host-opinionated.yml"`
+To destroy run use destroy.yml. E.g. `ansible-playbook destroy.yml --extra-vars="@var-examples/vsphere-base/1host-minimal-opinionated.yml"`
 
 ## Troubleshooting
 The vCenter install can take a long time. You can check the progress by browsing to https://<vcenter IP>:5480. If the vCenter install fails, check the `vcsa-cli-installer.log` file which can be found in a created directory under /tmp.<br/>
@@ -122,5 +123,5 @@ export ANSIBLE_MODULE_UTILS=$HOME/workspace/ansible-for-nsxt/module_utils
 
 Once all setup run the playbooks can be run locally:
 ```
-ansible-playbook deploy.yml --extra-vars="@var-examples/base-vsphere/1host-opinionated"
+ansible-playbook deploy.yml --extra-vars="@var-examples/base-vsphere/1host-minimal-opinionated.yml"
 ```

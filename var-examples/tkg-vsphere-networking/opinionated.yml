@@ -70,9 +70,8 @@ nested_clusters: # You can add clusters in this section by duplicating the exist
     hosting_cluster: "{{ opinionated.hosting_cluster }}" # the cluster where physical ESXi is connected to. The nested VMs will be deployed here
     hosting_datastore: "{{ opinionated.hosting_datastore }}" # Datastore target for nested ESXi VMs
     # Settings below are assigned to each host in the cluster
-    management_vmk0_vlan: "{{ opinionated.hosting_network.base.vlan_id }}"
     vswitch0_vm_port_group_name: vm-network
-    vswitch0_vm_port_group_vlan: "{{ opinionated.hosting_network.base.vlan_id }}"
+    vswitch0_vm_port_group_vlan: "0"
     cpu_cores: "{{ opinionated.nested_hosts.cpu_cores }}" # CPU count
     ram_in_gb: "{{ opinionated.nested_hosts.ram_in_gb }}" # memory
     # In order list of disks to assign to the nested host. All will be marked as SSD.
@@ -112,22 +111,9 @@ distributed_switches: # To not create any distributed switches, comment this sec
     uplink_quantity: 1
     vmnics:
       - vmnic1
-    distributed_port_groups: # Remove to create an empty VDS
-      # - port_group_name: management-pg
-      #   vlan_id: "{{ opinionated.hosting_network.base.vlan_id |default(0) }}"
+    distributed_port_groups:
       - port_group_name: workload-pg
         vlan_id: "{{ opinionated.hosting_network.workload.vlan_id |default(0) }}"
-  # - vds_name: tkgs-vds-workload
-  #   mtu: 1500
-  #   vds_version: 7.0.0
-  #   clusters: # distributed switch will be attached to all hosts in the clusters defined
-  #     - compute
-  #   uplink_quantity: 1
-  #   vmnics:
-  #     - vmnic2
-  #   distributed_port_groups: # Remove to create an empty VDS
-  #     - port_group_name: workload-pg
-  #       vlan_id: "{{ opinionated.hosting_network.workload.vlan_id |default(0) }}"
 
 tkgs:
   cluster_ip_services_cidr: "10.255.255.0/24" # This will not be routed and is private within each cluster

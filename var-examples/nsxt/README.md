@@ -24,6 +24,7 @@ In addition to the base instructions you will need to export the NSX-T license k
 ```
 export NSXT_LICENSE_KEY=AAAAA-BBBBB-CCCCC-DDDDD-EEEEE
 ```
+You can now use the run command from the base instructions pointing to your updated nsxt vars file.
 
 ## Known Issues
 - At NSX-T 3.1.0 the edge cluster is created successfully but the creation of the t0 is blocked for a period of time. This is likely an ansible issues as it doesn't appear in the UI. Currently fixed by adding a 300 second delay. If a failure occurs, re-run the playbook.
