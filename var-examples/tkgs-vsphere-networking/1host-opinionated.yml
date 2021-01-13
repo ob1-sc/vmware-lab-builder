@@ -31,7 +31,6 @@ opinionated:
   hosting_network:
     base:
       port_group: Nest
-      vlan_id: 0
       cidr: "192.168.0.0/22"
       gateway: "192.168.0.1"
       # A TKGS deployment requires 8 IPs, plus 1 per esxi host. They MUST be contiguous.
@@ -88,6 +87,7 @@ nested_clusters: # You can add clusters in this section by duplicating the exist
       # - name: "{{ opinionated.hosting_network.base.port_group }}"
       - name: "{{ opinionated.hosting_network.workload.port_group }}"
 
+# Below specifies how many IPs are reserved for other functions
 opinionated_host_ip_ofset: 8
 # You can add nested ESXi hosts below
 nested_hosts: >-
@@ -113,8 +113,8 @@ distributed_switches: # To not create any distributed switches, comment this sec
     vmnics:
       - vmnic1
     distributed_port_groups: # Remove to create an empty VDS
-      - port_group_name: management-pg
-        vlan_id: "{{ opinionated.hosting_network.base.vlan_id |default(0) }}"
+      # - port_group_name: management-pg
+      #   vlan_id: "{{ opinionated.hosting_network.base.vlan_id |default(0) }}"
       - port_group_name: workload-pg
         vlan_id: "{{ opinionated.hosting_network.workload.vlan_id |default(0) }}"
   # - vds_name: tkgs-vds-workload
@@ -167,9 +167,9 @@ tkgs:
     management_ip: "{{ opinionated.hosting_network.base.starting_addr | ipmath(2) }}/{{ opinionated.hosting_network.base.cidr.split('/')[1] }}"
     management_port: "5556"
     management_gateway: "{{ opinionated.hosting_network.base.gateway }}"
-    management_port_group: "management-pg"
+    management_port_group: vm-network
     workload_ip: "{{ opinionated.hosting_network.workload.cidr | ipmath(2) }}/{{ opinionated.hosting_network.workload.cidr.split('/')[1] }}"
     workload_gateway: "{{ opinionated.hosting_network.workload.gateway }}"
-    workload_port_group: "workload-pg"
+    workload_port_group: workload-pg
     # Line below will create a cidr of the third quarter of opinionated.hosting_network.workload.cidr
     service_ip_range: "{{ opinionated.hosting_network.workload.cidr | ansible.netcommon.ipsubnet((opinionated.hosting_network.workload.cidr.split('/')[1] |int)+2, 2) }}" # Can be comma separated

@@ -32,9 +32,9 @@
       when: 'nsxt is defined'
 
     ### vSphere with Kubernetes Section
-    - role: vsphere/vsphere-tag-datastore
+    - role: vsphere-tanzu/vsphere-content-library
       when: 'tkgs is defined'
-    - role: vsphere/vsphere-content-library
+    - role: vsphere-tanzu/vsphere-tag-datastore
       when: 'tkgs is defined'
     - role: vsphere-tanzu/tkgs-vyos-router
       when: 'tkgs is defined and tkgs.router is defined'
@@ -43,3 +43,5 @@
     - role: vsphere-tanzu/tkgs-enable-cluster
       when: 'tkgs is defined'
     
+    ### Show outputs at the end
+    - role: display-configuration
