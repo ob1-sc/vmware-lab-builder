@@ -1,0 +1,124 @@
+---
+- name: Upgrade apt repositories
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - curl
+  ignore_errors: true
+
+- name: Add MongoDB CE GPG key
+  ansible.builtin.get_url:
+    url: https://www.mongodb.org/static/pgp/server-8.0.asc
+    dest: /etc/apt/keyrings/server-8.0.asc
+    mode: '0644'
+    force: true
+
+- name: Add MongoDB CE PPA
+  ansible.builtin.apt_repository:
+    repo: deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/server-8.0.asc ] https://repo.mongodb.org/apt/ubuntu "{{ ansible_distribution_release }}/mongodb-org/8.0"  multiverse
+    mode: "0644"
+
+- name: Install MongoDB CE
+  ansible.builtin.apt:
+    name:
+      - mongodb-org
+
+- name: Enable MongoDB CE Service
+  ansible.builtin.service:
+    name: mongod
+    enabled: yes
+
+- name: Enable MongoDB CE Service, if not started
+  ansible.builtin.service:
+    name: mongod
+    state: started
+
+# - name: Create a docker group
+#   ansible.builtin.group:
+#     name: docker
+#     state: present
+
+# - name: Add the user to the docker group
+#   ansible.builtin.user:
+#     name: harbor
+#     group: docker
+
+# - name: Get docker compose github release info
+#   ansible.builtin.uri:
+#     url: https://api.github.com/repos/docker/compose/releases/latest
+#     return_content: true
+#     body_format: json
+#   register: docker_compose_release_info
+
+# - name: Get docker compose download URL
+#   ansible.builtin.set_fact:
+#     docker_compose_release_url: "{{ docker_compose_release_info.json | to_json | from_json | json_query(json_filter) | join('') }}"
+#   vars:
+#     - json_filter: >-
+#         assets[?(contains(name, '{{ release_asset_filter | default('Linux') }}') &&
+#         !contains(name, 'sha256') && !contains(name, '32'))].browser_download_url
+
+# - ansible.builtin.debug:
+#     msg: "Downloading docker compose release from: {{ docker_compose_release_url }}"
+
+# - name: Install docker compose github release
+#   ansible.builtin.get_url:
+#     url: "{{ docker_compose_release_url }}"
+#     dest: /usr/local/bin/docker-compose
+#     mode: 0755
+
+# - name: Get harbor github release info
+#   ansible.builtin.uri:
+#     url: https://api.github.com/repos/goharbor/harbor/releases/latest
+#     return_content: true
+#     body_format: json
+#   register: harbor_release_info
+
+# - name: Get harbor download URL
+#   ansible.builtin.set_fact:
+#     harbor_release_url: "{{ harbor_release_info.json | to_json | from_json | json_query(json_filter) | join('') }}"
+#   vars:
+#     - json_filter: >-
+#         assets[?(contains(name, '{{ release_asset_filter | default('online') }}') &&
+#         !contains(name, 'asc'))].browser_download_url
+
+# - ansible.builtin.debug:
+#     msg: "Downloading harbor release from: {{ harbor_release_url }}"
+
+# - name: Create temporary dir
+#   ansible.builtin.tempfile:
+#     state: directory
+#     suffix: -harbor-installer
+#   register: temp_dir
+
+# - ansible.builtin.debug:
+#     msg: "Created tmp dir: {{ temp_dir.path }}"
+
+# - name: Download and unpack harbor installer
+#   ansible.builtin.unarchive:
+#     src: "{{ harbor_release_url }}"
+#     dest: "{{ temp_dir.path }}"
+#     remote_src: true
+
+# - name: Prepare harbor configuration
+#   ansible.builtin.template:
+#     src: config.j2
+#     dest: "{{ temp_dir.path }}/harbor/harbor.yml"
+#     mode: '660'
+
+# - name: Install harbor
+#   ansible.builtin.command: "{{ temp_dir.path }}/harbor/install.sh --with-chartmuseum"
+
+# - name: Delete temporary dir
+#   ansible.builtin.file:
+#     state: absent
+#     path: "{{ temp_dir.path }}/"
+
+# - name: Cleanup apt packages
+#   ansible.builtin.apt:
+#     autoclean: true
+#     autoremove: true

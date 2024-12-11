@@ -1,0 +1,31 @@
+---
+- name: Prepare Ubuntu Server VM for Graylog
+  ansible.builtin.include_role:
+    name: ubuntu-server
+  vars:
+    inventory_host_group: graylog
+
+    ubuntu_ova_path: "{{ ubuntu_ova }}"
+
+    vcsa_hostname: "{{ graylog_standalone.vcenter_url }}"
+    vcsa_username: "{{ graylog_standalone.vcenter_username }}"
+    vcsa_password: "{{ graylog_standalone.vcenter_password }}"
+    vsphere_datacenter: "{{ graylog_standalone.vcenter_datacenter }}"
+    vsphere_cluster: "{{ graylog_standalone.vcenter_cluster }}"
+    vsphere_datastore: "{{ graylog_standalone.vcenter_datastore }}"
+    vsphere_resource_pool: "{{ graylog_standalone.vcenter_resource_pool }}"
+
+    ubuntu_vm_name: "{{ environment_tag }}-graylog"
+    ubuntu_vm_network: "{{ graylog_standalone.network }}"
+    ubuntu_vm_memory: "{{ graylog_standalone.memory_in_mb }}"
+    ubuntu_vm_cpus: "{{ graylog_standalone.cpus }}"
+    ubuntu_vm_disk_size: "{{ graylog_standalone.disk_size_in_gb }}"
+    ubuntu_install_packages: "{{ graylog_standalone.ubuntu_install_packages }}"
+
+    ubuntu_client_hostname: "{{ graylog_standalone.host_name }}"
+    ubuntu_client_ip_address: "{{ graylog_standalone.ip }}/{{ graylog_standalone.network_cidr | ansible.utils.ipaddr('prefix') }}"
+    ubuntu_client_gateway: "{{ graylog_standalone.gateway }}"
+    ubuntu_client_nameserver: "{{ dns_server }}"
+    ubuntu_client_username: "{{ graylog_standalone.vm_username }}"
+    ubuntu_client_password: "{{ graylog_standalone.vm_password }}"
+    ubuntu_ssh_public_key: "{{ graylog_standalone.ssh_public_key }}"
