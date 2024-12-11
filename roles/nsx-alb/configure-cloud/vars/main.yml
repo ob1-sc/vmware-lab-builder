@@ -13,7 +13,7 @@ avi_credentials:
   api_version: "{{ api_version }}"
 
 # The cloud vCenter will host the service engines and Tanzu clusters
-cloud_name: "{{ nsx_alb.cloud_name }}"
+cloud_name: "{{ nsx_alb.cloud_name | default('TKGS')}}"
 cloud_vcenter_username: "{{ nsx_alb.cloud_vcenter_username }}"
 cloud_vcenter_password: "{{ nsx_alb.cloud_vcenter_password }}"
 cloud_vcenter_url: "{{ nsx_alb.cloud_vcenter_url }}"
