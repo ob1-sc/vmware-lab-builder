@@ -1,4 +1,8 @@
 ---
+- name: End play if not Ubuntu Jammy (22.04) or Focal (20.04)
+  fail: "Release: {{ ansible_distribution_release }} not compatible with Graylog 6.1"
+  when: ansible_distribution_release not in ["jammy","focal"]
+
 - name: Upgrade apt repositories
   ansible.builtin.apt:
     update_cache: true
@@ -12,14 +16,14 @@
 
 - name: Add MongoDB CE GPG key
   ansible.builtin.get_url:
-    url: https://www.mongodb.org/static/pgp/server-8.0.asc
-    dest: /etc/apt/keyrings/server-8.0.asc
+    url: https://www.mongodb.org/static/pgp/server-7.0.asc
+    dest: /etc/apt/keyrings/server-7.0.asc
     mode: '0644'
     force: true
 
 - name: Add MongoDB CE PPA
   ansible.builtin.apt_repository:
-    repo: deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/server-8.0.asc ] https://repo.mongodb.org/apt/ubuntu "{{ ansible_distribution_release }}/mongodb-org/8.0"  multiverse
+    repo: deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/server-7.0.asc ] https://repo.mongodb.org/apt/ubuntu "{{ ansible_distribution_release }}/mongodb-org/7.0"  multiverse
     mode: "0644"
 
 - name: Install MongoDB CE
@@ -27,15 +31,78 @@
     name:
       - mongodb-org
 
-- name: Enable MongoDB CE Service
+- name: Enable and Start the MongoDB CE Service
   ansible.builtin.service:
     name: mongod
     enabled: yes
-
-- name: Enable MongoDB CE Service, if not started
-  ansible.builtin.service:
-    name: mongod
     state: started
+
+- name: Install Graylog Data Node Package
+  ansible.builtin.apt:
+    deb: https://packages.graylog2.org/repo/packages/graylog-6.1-repository_latest.deb
+
+- name: Install Graylog Data Node
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - graylog-datanode
+
+- name: Update sysctl vm.max_map_count
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: true
+
+- name: Generate Graylog Data Node Password
+  ansible.builtin.set_fact:
+    graylog_password_secret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters'], length=64) }}"
+
+- name: Prepare Graylog Data Node configuration
+  ansible.builtin.template:
+    src: datanode.j2
+    dest: /etc/graylog/datanode/datanode.conf
+    mode: '644'
+    backup: true
+
+- name: Enable and Start the Graylog Data Node Service
+  ansible.builtin.service:
+    name: graylog-datanode
+    enabled: yes
+    state: started
+
+- name: Install Graylog Server
+  ansible.builtin.apt:
+    name:
+      - graylog-server
+
+- name: Prepare Graylog Server configuration
+  ansible.builtin.template:
+    src: server.j2
+    dest: /etc/graylog/server/server.conf
+    mode: '644'
+    backup: true
+
+- name: Enable and Start the Graylog Server Service
+  ansible.builtin.service:
+    name: graylog-server
+    enabled: yes
+    state: started
+
+- name: Wait for port 9000 to become open and contain "OpenSSH"
+  ansible.builtin.wait_for:
+    port: 9000
+    host: "{{ graylog_standalone.ip | ansible.utils.ipaddr('address') }}"
+    delay: 10
+
+- name: Get the temporary bootstrap password
+  shell: >
+    grep "Initial configuration is accessible at" /var/log/graylog-server/server.log |
+    awk -F "'" '{ for (f=2; f<=(NF-1)/2; f++) print $(f*2) }'
+  register: bootstrap_password
+
+- ansible.builtin.debug:
+    msg: "Temporary bootstrap password: {{ bootstrap_password.stdout }}"
 
 # - name: Create a docker group
 #   ansible.builtin.group:

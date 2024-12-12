@@ -49,6 +49,9 @@ RUN set -xe \
     && echo "****** Adding community.general from Ansible Galaxy ******" \
     && ansible-galaxy collection install community.general \
     \
+    && echo "****** Adding ansible.posix from Ansible Galaxy ******" \
+    && ansible-galaxy collection install ansible.posix \
+    \
     && echo "****** Adding ansible-for-nsxt from Github ******" \
     && ansible-galaxy collection install git+https://github.com/laidbackware/ansible-for-nsxt.git,upstream-fixes --force \
     \
@@ -65,3 +68,4 @@ RUN set -xe \
     && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
     && rm -rf /tmp/* \
     && apt-get clean
+    
