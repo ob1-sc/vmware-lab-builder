@@ -1,99 +1,99 @@
 ---
-# - name: End play if not Ubuntu Jammy (22.04) or Focal (20.04)
-#   fail: "Release: {{ ansible_distribution_release }} not compatible with Graylog 6.1"
-#   when: ansible_distribution_release not in ["jammy","focal"]
+- name: End play if not Ubuntu Jammy (22.04) or Focal (20.04)
+  fail: "Release: {{ ansible_distribution_release }} not compatible with Graylog 6.1"
+  when: ansible_distribution_release not in ["jammy","focal"]
 
-# - name: Upgrade apt repositories
-#   ansible.builtin.apt:
-#     update_cache: true
+- name: Upgrade apt repositories
+  ansible.builtin.apt:
+    update_cache: true
 
-# - name: Install dependencies
-#   ansible.builtin.apt:
-#     name:
-#       - gnupg
-#       - curl
-#   ignore_errors: true
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - curl
+  ignore_errors: true
 
-# - name: Add MongoDB CE GPG key
-#   ansible.builtin.get_url:
-#     url: https://www.mongodb.org/static/pgp/server-7.0.asc
-#     dest: /etc/apt/keyrings/server-7.0.asc
-#     mode: '0644'
-#     force: true
+- name: Add MongoDB CE GPG key
+  ansible.builtin.get_url:
+    url: https://www.mongodb.org/static/pgp/server-7.0.asc
+    dest: /etc/apt/keyrings/server-7.0.asc
+    mode: '0644'
+    force: true
 
-# - name: Add MongoDB CE PPA
-#   ansible.builtin.apt_repository:
-#     repo: deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/server-7.0.asc ] https://repo.mongodb.org/apt/ubuntu "{{ ansible_distribution_release }}/mongodb-org/7.0"  multiverse
-#     mode: "0644"
+- name: Add MongoDB CE PPA
+  ansible.builtin.apt_repository:
+    repo: deb [ arch=amd64,arm64 signed-by=/etc/apt/keyrings/server-7.0.asc ] https://repo.mongodb.org/apt/ubuntu "{{ ansible_distribution_release }}/mongodb-org/7.0"  multiverse
+    mode: "0644"
 
-# - name: Install MongoDB CE
-#   ansible.builtin.apt:
-#     name:
-#       - mongodb-org
+- name: Install MongoDB CE
+  ansible.builtin.apt:
+    name:
+      - mongodb-org
 
-# - name: Enable and Start the MongoDB CE Service
-#   ansible.builtin.service:
-#     name: mongod
-#     enabled: yes
-#     state: started
+- name: Enable and Start the MongoDB CE Service
+  ansible.builtin.service:
+    name: mongod
+    enabled: yes
+    state: started
 
-# - name: Install Graylog Data Node Package
-#   ansible.builtin.apt:
-#     deb: https://packages.graylog2.org/repo/packages/graylog-6.1-repository_latest.deb
+- name: Install Graylog Data Node Package
+  ansible.builtin.apt:
+    deb: https://packages.graylog2.org/repo/packages/graylog-6.1-repository_latest.deb
 
-# - name: Install Graylog Data Node
-#   ansible.builtin.apt:
-#     update_cache: true
-#     name:
-#       - graylog-datanode
+- name: Install Graylog Data Node
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - graylog-datanode
 
-# - name: Update sysctl vm.max_map_count
-#   ansible.posix.sysctl:
-#     name: vm.max_map_count
-#     value: '262144'
-#     state: present
-#     reload: true
+- name: Update sysctl vm.max_map_count
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: true
 
-# - name: Generate Graylog Data Node Password
-#   ansible.builtin.set_fact:
-#     graylog_password_secret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters'], length=64) }}"
+- name: Generate Graylog Data Node Password
+  ansible.builtin.set_fact:
+    graylog_password_secret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters'], length=64) }}"
 
-# - name: Prepare Graylog Data Node configuration
-#   ansible.builtin.template:
-#     src: datanode.j2
-#     dest: /etc/graylog/datanode/datanode.conf
-#     mode: '644'
-#     backup: true
+- name: Prepare Graylog Data Node configuration
+  ansible.builtin.template:
+    src: datanode.j2
+    dest: /etc/graylog/datanode/datanode.conf
+    mode: '644'
+    backup: true
 
-# - name: Enable and Start the Graylog Data Node Service
-#   ansible.builtin.service:
-#     name: graylog-datanode
-#     enabled: yes
-#     state: started
+- name: Enable and Start the Graylog Data Node Service
+  ansible.builtin.service:
+    name: graylog-datanode
+    enabled: yes
+    state: started
 
-# - name: Install Graylog Server
-#   ansible.builtin.apt:
-#     name:
-#       - graylog-server
+- name: Install Graylog Server
+  ansible.builtin.apt:
+    name:
+      - graylog-server
 
-# - name: Prepare Graylog Server configuration
-#   ansible.builtin.template:
-#     src: server.j2
-#     dest: /etc/graylog/server/server.conf
-#     mode: '644'
-#     backup: true
+- name: Prepare Graylog Server configuration
+  ansible.builtin.template:
+    src: server.j2
+    dest: /etc/graylog/server/server.conf
+    mode: '644'
+    backup: true
 
-# - name: Enable and Start the Graylog Server Service
-#   ansible.builtin.service:
-#     name: graylog-server
-#     enabled: yes
-#     state: started
+- name: Enable and Start the Graylog Server Service
+  ansible.builtin.service:
+    name: graylog-server
+    enabled: yes
+    state: started
 
-# - name: Wait for port 9000 to become open and contain "OpenSSH"
-#   ansible.builtin.wait_for:
-#     port: 9000
-#     host: "{{ graylog_standalone.ip | ansible.utils.ipaddr('address') }}"
-#     delay: 10
+- name: Wait for port 9000 to become open and contain "OpenSSH"
+  ansible.builtin.wait_for:
+    port: 9000
+    host: "{{ graylog_standalone.ip | ansible.utils.ipaddr('address') }}"
+    delay: 10
 
 - name: Get the temporary bootstrap password
   shell: >
@@ -108,6 +108,9 @@
   ansible.builtin.uri:
     url: http://{{ graylog_standalone.ip }}:9000/api/
     method: GET
+    status_code: 
+    - 200 # 200 if data node is setup is complete
+    - 404 # 404 if data node is still to be setup
   register: _apistatus
 
 - name: Check Graylog Data Node status
@@ -175,6 +178,28 @@
     - _apistatus.status != 200
     - _datanodestatus.json is not search("CONNECTED")
 
+- ansible.builtin.debug:
+    msg: "{{ _datanodestatus }}"
+
+- name: Finalise Graylog Data Node setup
+  ansible.builtin.uri:
+    url: http://{{ graylog_standalone.ip }}:9000/api/status/finish-config
+    user: admin
+    password: "{{ bootstrap_password.stdout }}"
+    status_code: 200
+    method: POST
+  when: 
+    - _apistatus.status != 200
+    - _datanodestatus.json is search("CONNECTED")
+
+- name: Wait for Graylog API to be ready
+  ansible.builtin.uri:
+    url: http://{{ graylog_standalone.ip }}:9000/api/
+    method: GET
+  register: _apistatus
+  until: _apistatus.status == 200
+  retries: 60
+  delay: 5 # Every 5 seconds
 
 # - name: Create a docker group
 #   ansible.builtin.group:
